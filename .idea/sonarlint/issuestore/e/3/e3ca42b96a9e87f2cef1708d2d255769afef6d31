@@ -1,0 +1,7 @@
+
+python:S1192Ä"aDefine a constant instead of duplicating this literal '__Secure-next-auth.session-token' 3 times.(ºáäþýÿÿÿÿ
+hpython:S1192û"ODefine a constant instead of duplicating this literal 'Closing tab...' 3 times.(á…¡°
+upython:S5717="]Change this default value to "None" and initialize this parameter inside the function/method.(ðèÁ²
+Mpython:S6035k"0Replace this alternation with a character class.(ÍÚØ¹þÿÿÿÿ
+rpython:S3776š"TRefactor this function to reduce its Cognitive Complexity from 25 to the 15 allowed.(òóŒ¦úÿÿÿÿ
+~python:S5886®"`Return a value of type "dict" instead of "NoneType" or update function "send_message" type hint.(üÖÕÏÿÿÿÿÿ

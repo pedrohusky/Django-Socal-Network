@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load custom_tags %}
+<head>
+    <!-- Head content goes here -->
+</head>
+<body>
+
+    <main>
+        <div class="comment-list">
+            {% for comment in post.comments.all %}
+            <div class="comment">
+                <div class="user-info">
+                    <img class="profile-picture" src="{{ comment.user.userprofile.profile_picture.url }}" alt="{{ comment.user.username }}">
+                    <a href="{% url 'profile' comment.user.username %}">
+                        <span class="username">{{ comment.user.username }}</span>
+                    </a>
+
+                    {% if user.is_authenticated and comment.user == user %}
+                    <button type="submit" class="edit-button edit-post-button" data-post-id="{{ post.id }}" data-post-user="{{ comment.user.id }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <form id="delete-post-form-{{ comment.id }}" method="post" action="{% url 'delete_post' comment.id %}">
+                        {% csrf_token %}
+                        <button  data-post-id="{{ post.id }}" data-post-user="{{ comment.user.id }}" class="delete-button delete-post-button"
+                                 data-confirm="Are you sure you want to delete this post?">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <div class="post-content">
+                    <div class="text-container" data-post-id="{{ post.id }}" data-post-user="{{ comment.user.id }}" id="post-content-{{ comment.id }}">{{comment.content|safe|urlize }}</div>
+                    {% csrf_token %}
+                    <textarea class="edit-textarea" name="edited_content" id="edit-textarea-{{ comment.id }}" style="display: none;">{{ comment.content }}</textarea>
+                    <button class="save-button" data-post-id="{{ post.id }}" data-post-user="{{ comment.user.id }}" id="save-button-{{ comment.id }}" style="display: none;">Save</button>
+
+                </div>
+
+                <div class="comment-actions">
+
+                    <div class="like-form">
+                        <span id="like-count-comment-{{ comment.id }}" class="dislike-count">{{ comment.likes.all.count }}</span>
+                        <button class="like-button" data-object-id="{{ comment.id }}" data-is-comment="true">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                    </div>
+
+                    <div class="dislike-form">
+                        <span id="dislike-count-comment-{{ comment.id }}" class="dislike-count">{{ comment.dislikes.all.count }}</span>
+                        <button class="dislike-button" data-object-id="{{ comment.id }}" data-is-comment="true">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+
+                    <div class="post-footer">
+                        <span class="timestamp">{{ comment.created_at }}</span>
+                    </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    </main>
+
+    <footer>
+        <!-- Footer content goes here -->
+    </footer>
+</body>
+</html>

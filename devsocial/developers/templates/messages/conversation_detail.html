@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Window</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+    background-color: #ffffff;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-title {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .close-button {
+            cursor: pointer;
+            font-size: 1rem;
+            color: #999;
+        }
+        .message-list {
+            list-style: none;
+            padding: 0;
+        }
+        #send-message-form {
+            margin-top: 20px;
+        }
+        #send-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+        textarea {
+            width: 91%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        {% for participant in conversation.participants.all %}
+    {% if participant != request.user %}
+        <h2 class="chat-title">{{ participant.username }} Chat</h2>
+    {% endif %}
+{% endfor %}
+        <span class="close-button" id="close-button">X</span>
+    </div>
+    <ul class="message-list" id="messages-list-{{ conversation.id }}" data-conversation-id="{{ conversation.id }}">
+        {% for message in messages %}
+            <li class="message-item">{{ message.sender.username }}: {{ message.content }}</li>
+        {% endfor %}
+    </ul>
+    <form id="send-message-form" method="post" action="{% url 'send_message' conversation.id %}" data-conversation-id="{{ conversation.id }}">
+        {% csrf_token %}
+        <textarea name="content" rows="3" placeholder="Type your message"></textarea>
+        <button type="button" id="send-button">Send</button>
+    </form>
+</div>
+{% endblock %}
+
+<script>
+
+</script>
+
+</body>
+</html>

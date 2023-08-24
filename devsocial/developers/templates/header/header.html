@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+
+<h1 class="app-name"><a href="{% url 'feed' %}">DevX</a></h1>
+
+<div class="search-box">
+    <input type="text" class="search-input" id="search-input" placeholder="Search..." onkeyup="searchPosts()">
+</div>
+
+<div class="user-options">
+    {% if user.is_authenticated %}
+    <img class="profile-picture" src="{{ user.userprofile.profile_picture.url }}" alt="{{ user.username }}">
+    <div class="dropdown">
+        <button class="dropdown-button">{{ user.username }}</button>
+        <div class="dropdown-content">
+            <a href="{% url 'custom_logout' %}">Exit</a>
+            <a href="{% url 'profile' user.username %}">Profile</a>
+            <a href="#">Friends</a>
+        </div>
+    </div>
+    {% else %}
+    <a href="{% url 'login' %}" class="login-button">Login</a>
+    <a href="{% url 'register' %}" class="register-button">Register</a>
+    {% endif %}
+</div>
+
+
+<script>
+    function searchPosts() {
+            var input, filter, postList, posts, i, postCard, postContent, searchText;
+            input = document.getElementById("search-input");
+            filter = input.value.toLowerCase();
+            postList = document.querySelector(".post-list");
+            posts = postList.getElementsByClassName("post-card");
+
+            for (i = 0; i < posts.length; i++) {
+                postCard = posts[i];
+                postContent = postCard.querySelector(".post-content");
+                searchText = postContent.textContent || postContent.innerText;
+
+                if (searchText.toLowerCase().indexOf(filter) > -1) {
+                    postCard.style.display = "";
+                } else {
+                    postCard.style.display = "none";
+                }
+            }
+        }
+</script>
+
+</body>
+</html>

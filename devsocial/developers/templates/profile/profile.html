@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+{% load static %}  <!-- Add this line at the top of your template -->
+{% load custom_tags %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{profile.user.username}} | DevSocial</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+     <header class="header bg-dark text-light">
+        {% include 'header/header.html' %}
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="profile">
+                <img src="{{ profile.user.userprofile.profile_picture.url }}" alt="{{ profile.user.username }}">
+                <h1>{{ profile.user.username }}</h1>
+                {% if user.is_authenticated and user != profile.user %}
+                {% if user|is_friend:profile.user %}
+                <!-- Form to remove friend -->
+                <form id="remove-friend-form-{{ profile.user.id }}" method="post" action="{% url 'remove_friend' profile.user.username %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-remove-friend-button">Remove Friend</button>
+                </form>
+                {% else %}
+                <!-- Form to add friend -->
+                <form id="add-friend-form-{{ profile.user.id }}" method="post" action="{% url 'add_friend' profile.user.username %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-remove-friend-button">Add as Friend</button>
+                </form>
+                {% endif %}
+                {% if user|is_blocked:profile.user %}
+                <!-- Form to BLOCK USER -->
+                <form id="block-user-form-{{ profile.user.id }}" method="post" action="{% url 'remove_block' profile.user.username %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-remove-friend-button">Unblock user</button>
+                </form>
+                {% else %}
+                <!-- Form to remove block -->
+                <form id="remove-block-form-{{ profile.user.id }}" method="post" action="{% url 'block_user' profile.user.username %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-remove-friend-button">Block User</button>
+                </form>
+                {% endif %}
+                {% endif %}
+                <h2>Friends</h2>
+                <div class="friends-list">
+                    {% for friend in profile.user.userprofile.friends.all %}
+                           {% with profile_data=friend|find_user %}
+                               {% if profile_data %}
+                                   <!-- Display the profile data -->
+                                   <a href="{% url 'profile' profile_data.user.username %}">
+                                       <img class="friend-image" src="{{ profile_data.profile_picture.url }}" alt="{{ profile_data.user.username }}">
+                                   </a>
+                                   <!-- Add more details here as needed -->
+                              {% else %}
+                              <!-- User profile not found -->
+                              <p>Profile not found for {{ user.username }}</p>
+                              {% endif %}
+                           {% endwith %}
+                       {% endfor %}
+                </div>
+                <h2>Blocked Users</h2>
+                <div class="friends-list">
+                    {% for blocked_user in profile.user.userprofile.blocked_users.all %}
+                           {% with profile_data=blocked_user|find_user %}
+                               {% if profile_data %}
+                                   <!-- Display the profile data -->
+                                   <a href="{% url 'profile' profile_data.user.username %}">
+                                       <img class="friend-image" src="{{ profile_data.profile_picture.url }}" alt="{{ profile_data.user.username }}">
+                                   </a>
+                                   <!-- Add more details here as needed -->
+                              {% else %}
+                              <!-- User profile not found -->
+                              <p>Profile not found for {{ user.username }}</p>
+                              {% endif %}
+                           {% endwith %}
+                       {% endfor %}
+                </div>
+
+            </div>
+
+            {% include 'post/post_card.html' %}
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        {% include 'footer/footer.html' %}
+    </footer>
+
+
+<script>
+
+</script>
+</body>
+</html>

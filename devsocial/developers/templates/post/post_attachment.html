@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}  <!-- Add this line at the top of your template -->
+{% load custom_tags %}
+<body>
+<div class="post-attachment" id="post-attachment-{{ post.id }}">
+    {% if post.attachment %}
+        {% with file_extension=post.attachment.url|slice:'-4:' %}
+            <div>
+                {% if file_extension|lower == '.jpg' or file_extension|lower == '.png' or file_extension|lower == '.jpeg' %}
+                    <img class="border" src="{{ post.attachment.url }}" alt="{{ post.attachment }}">
+                {% else %}
+                    {% with file_name=post.attachment.url|split_string %}
+                        <a class="border" href="{{ post.attachment.url }}" download="{{ post.attachment }}">{{ file_name }}</a>
+                    {% endwith %}
+                {% endif %}
+            </div>
+        {% endwith %}
+
+    {% endif %}
+</div>
+
+</body>
+</html>

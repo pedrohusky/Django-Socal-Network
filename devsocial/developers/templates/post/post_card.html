@@ -1,0 +1,633 @@
+
+<!DOCTYPE html>
+{% load static %}  <!-- Add this line at the top of your template -->
+{% load custom_tags %}
+<html lang="en">
+<main>
+        <div class="post-list">
+            {% for post in posts %}
+            <div class="post-card" id="post-card-{{ post.id }}">
+                <div class="user-info">
+                    <img class="profile-picture" src="{{ post.user.userprofile.profile_picture.url }}" alt="{{ post.user.username }}">
+                    <a href="{% url 'profile' post.user.username %}">
+                        <span class="username">{{ post.user.username }}</span>
+                    </a>
+
+                    {% if user.is_authenticated and post.user == user %}
+                    <button type="submit" class="edit-button edit-post-button" data-post-id="{{ post.id }}" data-post-user="{{ post.user.id }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <form id="delete-post-form-{{ post.id }}" method="post" action="{% url 'delete_post' post.id %}">
+                        {% csrf_token %}
+                        <button  data-post-id="{{ post.id }}" data-post-user="{{ post.user.id }}" class="delete-button delete-post-button"
+                                 data-confirm="Are you sure you want to delete this post?">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+
+                <div class="post-content">
+
+                    <div class="text-container" data-post-id="{{ post.id }}" data-post-user="{{ post.user.id }}" id="post-content-{{ post.id }}">{{ post.content|sanitize_html|urlize }}</div>
+
+                    <div class="edit-file-container">
+
+                        <form id="edit-file-container-{{ post.id }}" method="post" enctype="multipart/form-data" style="display: none;">
+
+                    {% csrf_token %}
+                        <textarea class="edit-textarea" name="edited_content" id="edit-textarea-{{ post.id }}" >{{ post.content }}</textarea>
+
+                        <div id="file-input-{{ post.id }}" class="file-input-container" >
+
+                            {% if post.attachment %}
+                            <a class="timestamp" href="{{ post.attachment.url }}" target="_blank">Current Attachment: {{ post.attachment.url }}</a>
+                            {% endif %}
+
+                            <div id="file-chosen-{{ post.id }}" class="file-input" >
+                                <input type="file" name="file">
+                            </div>
+
+
+
+                        </div>
+
+                        <button class="save-button" data-post-id="{{ post.id }}" data-post-user="{{ post.user.id }}" id="save-button-{{ post.id }}">Save</button>
+                        </form>
+                    </div>
+
+
+                    {% include 'post/post_attachment.html' %}
+
+
+
+                </div>
+
+                <div class="comment-actions">
+                    <div class="like-form">
+                        <!-- Like button for a post -->
+                        <span id="like-count-post-{{ post.id }}" class="dislike-count">{{ post.likes.all.count }}</span>
+                        <button class="like-button" data-object-id="{{ post.id }}" data-is-comment="false">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                    </div>
+
+                    <div class="dislike-form">
+                        <span id="dislike-count-post-{{ post.id }}" class="dislike-count">{{ post.dislikes.all.count }}</span>
+                        <button class="dislike-button" data-object-id="{{ post.id }}" data-is-comment="false">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
+                </div>
+
+                    <div class="post-footer">
+                        <span class="timestamp">{{ post.created_at }}</span>
+                    </div>
+
+                    <div class="centered-container">
+                        <div class="comment-link" href="#" data-post-id="{{ post.id }}" data-open="false">
+                            <span>Show comments</span>
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+                <!-- Comments section -->
+                <div class="comments-section" id="comments-section-{{ post.id }}" style="display: none;">
+                    <!-- Add a form for adding comments -->
+                    <form class="comment-form" id="comment-form-{{ post.id }}" >
+                        {% csrf_token %}
+                        <textarea id="comment-textarea-{{ post.id }}" class="comment-textarea" name="comment_content" rows="4" placeholder="Write a comment..."></textarea>
+                        <button data-post-id="{{ post.id }}" data-post-user="{{ post.user.id }}" class="comment-submit-button">Submit</button>
+                    </form>
+
+                    {% include 'post/comment.html' %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+
+
+
+    </main>
+
+<script>
+
+    const textarea = document.querySelectorAll(".comment-textarea");
+
+    textarea.forEach(button => {
+
+    button.addEventListener("input", () => {
+        button.style.height = "auto"; // Reset height
+        button.style.height = `${button.scrollHeight}px`; // Set new height
+    });
+
+    });
+
+
+    const postContents = document.querySelectorAll(".edit-textarea");
+    postContents.forEach(button => {
+    button.addEventListener("input", () => {
+        button.style.height = "auto"; // Reset height
+        button.style.height = `${button.scrollHeight}px`; // Set new height
+    });
+    });
+
+
+
+
+    function post_scripts() {
+    const clickablePostContents = document.querySelectorAll('.edit-button');
+
+clickablePostContents.forEach(clickablePostContent => {
+// Inside your event listener for hovering over posts
+    const postId = clickablePostContent.getAttribute('data-post-id');
+
+    const postUser = clickablePostContent.getAttribute('data-post-user'); // Assuming you have an attribute containing the post user's ID
+    const loggedInUserId = '{{ request.user.id }}'; // Get the logged-in user's ID from the template
+
+
+    if (postUser === loggedInUserId) {
+        clickablePostContent.addEventListener('click', () => {
+        const postId = clickablePostContent.getAttribute('data-post-id');
+        const postContent = document.getElementById(`post-content-${postId}`);
+        const editTextarea = document.getElementById(`edit-textarea-${postId}`);
+        const fileInput = document.getElementById(`file-input-${postId}`);
+        const fileAttachment = document.getElementById(`post-attachment-${postId}`);
+        const fileInputForm = document.getElementById(`edit-file-container-${postId}`);
+
+        const contentWidth = postContent.offsetWidth;
+        const contentHeight = postContent.offsetHeight;
+
+
+        // Set edit textarea dimensions to be at least 100px if content size is small
+            const editWidth = contentWidth <= 10 ? 75 : contentWidth;
+            const editHeight = contentHeight <= 10 ? 75 : contentHeight;
+
+
+            editTextarea.style.width = `${editWidth}px`;
+            editTextarea.style.height = `${editHeight}px`;
+
+            if (postContent.style.display === 'block' || postContent.style.display === '') {
+                postContent.style.display = 'none';
+                fileInputForm.style.display = 'block';
+                if (fileAttachment) {
+                fileAttachment.style.display = 'none';
+                }
+            } else {
+                postContent.style.display = 'block';
+                fileInputForm.style.display = 'none';
+                if (fileAttachment) {
+                fileAttachment.style.display = 'block';
+                }
+            }
+    });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+async function commentButtonEventListener(commentLink, event) {
+    event.preventDefault();
+
+
+            const postId = commentLink.getAttribute('data-post-id');
+            const commentsSection = document.querySelector(`#comments-section-${postId}`);
+
+            // Toggle the visibility of comments section
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+            } else {
+                commentsSection.style.display = 'none';
+            }
+
+            if (commentsSection.style.maxHeight) {
+                commentsSection.style.maxHeight = null; // Collapse the comment section
+            } else {
+                commentsSection.style.maxHeight = commentsSection.scrollHeight*20 + "px"; // Expand the comment section
+            }
+}
+
+
+
+      const commentLinks = document.querySelectorAll('.comment-link');
+
+    commentLinks.forEach(commentLink => {
+    commentLink.removeEventListener('click', commentButtonEventListener);
+    commentLink.addEventListener('click', event => {
+        commentButtonEventListener(commentLink, event);
+    });
+    });
+
+
+
+
+
+
+
+
+
+async function saveButtonEventListener(saveButton, event) {
+    event.preventDefault();
+
+    const postId = saveButton.getAttribute('data-post-id');
+        const editTextarea = document.getElementById(`edit-textarea-${postId}`);
+       const fileContainer = document.getElementById(`edit-file-container-${postId}`);
+const fileInput = fileContainer.querySelector('input[name="file"]');
+        const postAttachment = document.getElementById(`post-attachment-${postId}`);
+        const editedContent = editTextarea.value;
+        const formData = new FormData(fileContainer);
+        formData.append("edited_content", editedContent);
+
+        fetch(`/edit_post/${postId}/`, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",  // Indicate an AJAX request
+                        "X-CSRFToken": "{{ csrf_token }}"      // Include CSRF token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const postContent = document.getElementById(`post-content-${postId}`);
+                        const postAttachment = document.getElementById(`post-attachment-${postId}`);
+            postContent.textContent = editedContent;
+
+            const postAttachmentContainer = postAttachment;
+const attachmentUrl = data.url;
+const attachmentExtension = attachmentUrl.slice(-4).toLowerCase();
+const fileExtension = attachmentExtension === ".jpeg" ? ".jpg" : attachmentExtension;
+
+let attachmentHTML = "";
+
+if (fileExtension === ".jpg" || fileExtension === ".png" || fileExtension === ".jpeg") {
+    attachmentHTML = `<img class="border" src="${attachmentUrl}" alt="${attachmentUrl}">`;
+} else if (fileExtension !== "") {
+    const fileName = attachmentUrl.split('/').slice(-1)[0];
+    attachmentHTML = `<a class="border" href="${attachmentUrl}" download="${fileName}">${fileName}</a>`;
+}
+
+postAttachmentContainer.innerHTML = attachmentHTML;
+
+
+            // Hide the textarea and save button, show post content
+            postContent.style.display = 'block';
+            postAttachment.style.display = 'block';
+
+            fileContainer.style.display = 'none';
+                        console.log("Post edited successfully!");
+                    } else {
+                        // Handle error or validation messages (optional)
+                        console.error("An error occurred while editing the post.");
+                    }
+                })
+                .catch(error => {
+                    console.error("An error occurred:", error);
+                });
+}
+
+
+
+        // Add an event listener for save buttons
+const saveButtons = document.querySelectorAll('.save-button');
+
+saveButtons.forEach(saveButton => {
+saveButton.removeEventListener('click', saveButtonEventListener);
+saveButton.addEventListener('click', event => {
+        saveButtonEventListener(saveButton, event);
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+async function deleteButtonEventListener(button, event) {
+    event.preventDefault();
+
+        const confirmationMessage = button.getAttribute('data-confirm');
+        if (!window.confirm(confirmationMessage)) {
+            return;
+        }
+
+        const postId = button.getAttribute('data-post-id');
+        try {
+            const response = await fetch(`/delete/${postId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',  // Indicate an AJAX request
+                    'X-CSRFToken': '{{ csrf_token }}'     // Include CSRF token
+                }
+            });
+
+            if (response.ok) {
+                // Remove the deleted post element from the DOM
+                const postElement = document.getElementById(`post-card-${postId}`);
+                postElement.remove();
+            } else {
+                console.error('An error occurred while deleting the post.');
+            }
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+}
+
+
+        // Add this inside your script tag or in a separate JS file
+const deleteButtons = document.querySelectorAll('.delete-post-button');
+
+deleteButtons.forEach(button => {
+button.removeEventListener('click', deleteButtonEventListener);
+    button.addEventListener('click', event => {
+        deleteButtonEventListener(button, event);
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+async function commentButtonHandler(button, event) {
+    event.preventDefault();
+
+            const postId = button.getAttribute('data-post-id');
+            const form = document.getElementById(`comment-form-${postId}`);
+
+            // Find the textarea within the form and get its value
+            const commentTextarea = document.getElementById(`comment-textarea-${postId}`);
+            const commentContent = commentTextarea.value;
+
+            try {
+            const formData = new FormData();
+        formData.append("comment_content", commentContent);
+
+                const response = await fetch(`/add_comment/${postId}/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                    'X-Requested-With': 'XMLHttpRequest',  // Indicate an AJAX request
+                    'X-CSRFToken': '{{ csrf_token }}'     // Include CSRF token
+                }
+
+                });
+
+                if (response.ok) {
+                    const responseData = await response.json();
+
+                    // Create a new comment element based on the response data
+                    const newCommentElement = document.createElement('div');
+                    newCommentElement.classList.add('comment');
+
+                    const createdDate = new Date(responseData.created_at);
+const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    timeZoneName: 'short'
+};
+
+const formattedDate = new Intl.DateTimeFormat('en-US', options).format(createdDate);
+
+                    newCommentElement.innerHTML = `
+
+                <div class="user-info">
+                    <img class="profile-picture" src="${responseData.user_image}" alt="${responseData.username}">
+                    <a href="/profile/${responseData.username}">
+                        <span class="username">${responseData.username}</span>
+                    </a>
+
+                    <button type="submit" class="edit-button edit-post-button" data-post-id="${responseData.comment_id}" data-post-user="${responseData.user_id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <form id="delete-post-form-${responseData.comment_id}" method="post" ">
+                        {% csrf_token %}
+                        <button  data-post-id="${responseData.comment_id}" data-post-user="${responseData.user_id}" class="delete-button delete-post-button"
+                                 data-confirm="Are you sure you want to delete this comment?">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="post-content">
+                    <div class="text-container" data-post-id="${responseData.comment_id}" data-post-user="${responseData.user_id}" id="post-content-${responseData.comment_id}">
+                        ${responseData.comment_content}
+                    </div>
+                    {% csrf_token %}
+                    <textarea class="edit-textarea" name="edited_content" id="edit-textarea-${responseData.comment_id}" style="display: none;">{{responseData.comment_content}</textarea>
+                    <button class="save-button" data-post-id="${responseData.comment_id}" data-post-user="${responseData.comment_id}" id="save-button-${responseData.comment_id}" style="display: none;">Save</button>
+
+                </div>
+
+                <div class="comment-actions">
+
+                    <div class="like-form">
+                        <span id="like-count-comment-${responseData.comment_id}" class="dislike-count">${responseData.likes}</span>
+                        <button class="like-button" data-object-id="${responseData.comment_id}" data-is-comment="true">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                    </div>
+
+                    <div class="dislike-form">
+                        <span id="dislike-count-comment-${responseData.comment_id}" class="dislike-count">${responseData.dislikes}</span>
+                        <button class="dislike-button" data-object-id="${responseData.comment_id}" data-is-comment="true">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                    <div class="post-footer">
+                        <span class="timestamp">${responseData.created_at}</span>
+                    </div>
+
+
+            `;
+
+                    // Append the new comment element to the comments section
+                    const commentsSection = document.getElementById(`comments-section-${postId}`);
+                    commentsSection.appendChild(newCommentElement);
+
+
+
+                    // Clear the comment text area
+                    commentTextarea.value = '';
+
+                    const likeButtons = document.querySelectorAll('.like-button');
+
+    likeButtons.forEach(button => {
+    button.removeEventListener('click', likeButtonListener);
+    button.addEventListener('click', event => {
+        likeButtonListener(button, event);
+    });
+});
+
+const dislikeButtons = document.querySelectorAll('.dislike-button');
+
+dislikeButtons.forEach(button => {
+button.removeEventListener('click', dislikeEventListener);
+    button.addEventListener('click', event => {
+        dislikeEventListener(button, event);
+    });
+});
+
+
+
+
+                    console.log('Comment added successfully!');
+                } else {
+                    console.error('An error occurred while adding the comment.');
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+            }
+}
+
+
+
+const commentSubmitButtons = document.querySelectorAll('.comment-submit-button');
+
+commentSubmitButtons.forEach(button => {
+button.removeEventListener('click', commentButtonHandler);
+button.addEventListener('click', event => {
+        commentButtonHandler(button, event);
+    });
+});
+
+
+
+
+
+
+
+
+
+async function likeButtonListener(button, event) {
+    event.preventDefault();
+
+    const objectId = button.getAttribute('data-object-id');
+        const isComment = button.getAttribute('data-is-comment') === 'true';
+        const comment = isComment ? 'comment' : 'post';
+        console.log("dislike-count-"+comment+"-" + objectId);
+
+        const response = await fetch(`/add_reaction/${objectId}/${isComment}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest', // Indicate an AJAX request
+                'X-CSRFToken': '{{ csrf_token }}'     // Include CSRF token
+            }
+        });
+        if (response.ok) {
+
+            const responseData = await response.json();
+            const reactions = responseData.reactions;
+
+            // Update the displayed like and dislike counts
+            const likeCountElement = document.getElementById(`like-count-${comment}-${objectId}`);
+            const dislikeCountElement = document.getElementById(`dislike-count-${comment}-${objectId}`);
+
+            const other_reactions = responseData.other;
+
+            // Calculate the updated like count (other reactions minus one, with a minimum of zero)
+            const updatedLikeCount = Math.max(other_reactions - 1, 0);
+            likeCountElement.textContent = reactions.toString();
+            dislikeCountElement.textContent = updatedLikeCount.toString(); // Update the displayed dislike count as a string
+            } else {
+            console.error('An error occurred while performing the dislike action.');
+            }
+}
+
+
+const likeButtons = document.querySelectorAll('.like-button');
+
+    likeButtons.forEach(button => {
+    button.removeEventListener('click', likeButtonListener);
+    button.addEventListener('click', event => {
+        likeButtonListener(button, event);
+    });
+});
+
+
+
+
+
+
+
+
+async function dislikeEventListener(button, event) {
+    event.preventDefault();
+
+    const objectId = button.getAttribute('data-object-id');
+        const isComment = button.getAttribute('data-is-comment') === 'true';
+        const comment = isComment ? 'comment' : 'post';
+
+        const response = await fetch(`/add_reaction/${objectId}/${isComment}/dislike/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest', // Indicate an AJAX request
+                'X-CSRFToken': '{{ csrf_token }}'     // Include CSRF token
+            }
+        });
+
+        if (response.ok) {
+
+            const responseData = await response.json();
+const reactions = responseData.reactions;
+const other_reactions = responseData.other;
+
+// Update the displayed like and dislike counts
+const likeCountElement = document.getElementById(`like-count-${comment}-${objectId}`);
+const dislikeCountElement = document.getElementById(`dislike-count-${comment}-${objectId}`);
+
+// Calculate the updated like count (other reactions minus one, with a minimum of zero)
+const updatedLikeCount = Math.max(other_reactions - 1, 0);
+
+likeCountElement.textContent = updatedLikeCount.toString();
+
+dislikeCountElement.textContent = reactions.toString(); // Update the displayed dislike count as a string
+
+        } else {
+            console.error('An error occurred while performing the dislike action.');
+        }
+}
+
+
+const dislikeButtons = document.querySelectorAll('.dislike-button');
+
+dislikeButtons.forEach(button => {
+button.removeEventListener('click', dislikeEventListener);
+    button.addEventListener('click', event => {
+        dislikeEventListener(button, event);
+    });
+});
+
+    }
+
+    post_scripts();
+
+
+</script>
+</body>
+</html>

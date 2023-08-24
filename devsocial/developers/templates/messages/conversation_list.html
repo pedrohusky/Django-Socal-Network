@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<body>
+
+{% block content %}
+    <h2>Chat List</h2>
+    <ul>
+        {% for conversation in conversations %}
+            {% with other_user=conversation.participants.all|exclude:user %}
+                <li><a href="{% url 'conversation_detail' conversation.id %}">{{ other_user.first.username }}'s Chat</a></li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
+</body>
+</html>

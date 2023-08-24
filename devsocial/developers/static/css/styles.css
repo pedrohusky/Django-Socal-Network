@@ -1,0 +1,615 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f8fa;
+}
+
+header, .footer {
+    /* Header and footer styling */
+    background-color: #fff;
+    padding: 2px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    z-index: 1000; /* Set a high z-index to ensure the header is above other content */
+}
+
+.main {
+    /* Main content styling */
+    padding: 20px;
+}
+
+.container {
+    /* Container styling */
+    max-width: 40%;
+    margin: 0 auto;
+    margin-top: 75px;
+}
+
+.post-card {
+    /* Post card styling */
+    background-color: #fff;
+    position: relative;
+    border: 1px solid #e1e8ed;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 10px; /* Add rounded corners */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
+    /* Add transition properties */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.post-card.appear {
+    /* Additional styles for the appearance animation */
+    transform: translateY(0); /* Move card to its final position */
+    opacity: 1; /* Make the card fully visible */
+}
+
+.post-card.remove {
+    /* Additional styles for the removal animation */
+    transform: translateY(-100px); /* Move card upwards */
+    opacity: 0; /* Make the card fully transparent */
+}
+
+.post-card:hover {
+    transform: scale(1.015); /* Scale up on hover */
+}
+
+.user-info {
+    /* User info section styling */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-picture {
+    /* Profile picture styling */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.username {
+    /* Username styling */
+    font-weight: bold;
+}
+
+.timestamp {
+    /* Timestamp styling */
+    font-size: 12px;
+    color: #657786;
+}
+
+.comment-link {
+    /* Comment link styling */
+    font-size: 12px;
+    color: #1da1f2;
+    text-decoration: none;
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+.user-options {
+    display: flex;
+    align-items: center;
+}
+
+.profile-picture {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Style for the dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+    margin: 10px; /* Adjust margin as needed */
+}
+
+/* Style for the dropdown button */
+.dropdown-button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.login-button, .register-button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin: 0 10px;
+    margin-right: 30px;
+    text-decoration: none;
+}
+
+/* Style for the dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Style for the dropdown links */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Show the dropdown content when the dropdown button is hovered */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+.search-input {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    background-color: #f2f2f2;
+    font-size: 16px;
+    transition: background-color 0.3s ease-in-out;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.app-name {
+    font-size: 24px;
+    margin: 15px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.delete-button {
+    /* Existing styles */
+    display: inline-block;
+    background-color: white;
+    color: red;
+    border: none;
+    border-radius: 50%; /* Create a circular shape */
+    padding: 5px;
+    position: absolute;
+    top: 5px; /* Adjust the top position */
+    right: 5px; /* Adjust the right position */
+    transition: transform 0.2s ease-in-out; /* Add hover animation */
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+.delete-button i {
+    font-size: 18px; /* Adjust the icon size */
+}
+
+.delete-button:hover {
+    color: darkred; /* Darken the background on hover */
+}
+
+.post-form {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+
+}
+
+.file-input {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.file-input textarea,
+.file-input input[type="file"] {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.post-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.post-input textarea,
+.post-input input[type="file"] {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.submit-button {
+    background-color: #ffffff;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Rounded corners */
+    color: #444;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 10px 20px;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-left: 20px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s ease;
+}
+
+
+
+.submit-button:hover {
+    background-color: #f3f3f3;
+}
+
+
+/* Animation for the toggle link when clicked */
+.submit-button:active {
+    transform: scale(0.98);
+    background-color: #e0e0e0;
+}
+
+.post-attachment {
+    margin: 15px; /* Add space between content and attachment */
+    padding: 10px;
+    overflow: hidden; /* Hide any overflow beyond the attachment div */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+
+}
+
+.border {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+.post-attachment img {
+    width: 50%; /* Make sure image fills the attachment div */
+    max-height: 100%;
+    margin: auto;
+    height: auto; /* Maintain aspect ratio */
+}
+
+.post-footer {
+    /* Existing styles */
+    padding: 5px;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Align items vertically in the center */
+}
+
+
+
+.profile {
+    /* Profile section styling */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile img {
+    /* Profile picture styling */
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.profile h1 {
+    /* Username styling */
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.friends {
+    /* Friends section styling */
+    margin-top: 20px;
+}
+
+.friends h2 {
+    /* Friends heading styling */
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.friends p {
+    /* Friend username styling */
+    font-size: 16px;
+    margin: 5px 0;
+}
+
+/* Profile picture styling */
+.friend-image {
+    width: 40px !important; /* Set width to 25px */
+    height: 40px !important; /* Set height to 25px */
+    object-fit: cover; /* Maintain aspect ratio and cover the container */
+    border-radius: 50%; /* Make the image circular */
+}
+
+/* Friends list styling */
+.friends-list {
+    display: flex; /* Display friends side by side */
+    flex-wrap: wrap; /* Wrap to the next line if necessary */
+    gap: 10px; /* Add spacing between friends */
+    align-items: center; /* Center align vertically */
+}
+
+
+/* Style for each friend item */
+.friends-list-item {
+    display: flex; /* Display inline */
+    align-items: center; /* Center align vertically */
+    gap: 5px; /* Add spacing between image and text */
+}
+
+/* Styles for the toggle bar wrapper */
+.toggle-bar-wrapper {
+    max-width: 75%;
+    margin: 20px auto; /* Center align the wrapper horizontally */
+    display: flex; /* Use flex to center align horizontally */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+}
+
+/* Styles for the toggle link */
+.toggle-link a {
+    text-decoration: none;
+    background-color: #ffffff;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Rounded corners */
+    color: #444;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-link a:hover {
+    background-color: #f3f3f3;
+}
+
+/* Animation for the toggle link when clicked */
+.toggle-link a:active {
+    transform: scale(0.95);
+    background-color: #e0e0e0;
+}
+
+
+/* Style for comments section */
+.comments-section {
+    margin: 10px; /* Add spacing between post content and comments */
+    padding: 10px;
+    background-color: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.comment {
+    margin: 5px;
+    /* Add transition properties */
+    transition: opacity 0.3s ease-in-out;
+     margin: 10px; /* Add spacing between post content and comments */
+    padding: 5px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.comment.appear {
+    /* Additional styles for the appearance animation */
+    opacity: 1; /* Make the comment fully visible */
+}
+
+.comment.remove {
+    /* Additional styles for the removal animation */
+    opacity: 0; /* Make the comment fully transparent */
+}
+
+.comment-username {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.comment-content {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+/* CSS for the comment section */
+.comments-section {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out; /* Transition the max-height property */
+}
+
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Align items vertically in the center */
+}
+
+.like-form,
+.dislike-form {
+    margin-right: 10px; /* Add space between the forms and the clickable text */
+}
+
+.like-link,
+.dislike-link {
+    cursor: pointer;
+    text-decoration: underline; /* Add underline to make the text look clickable */
+    margin-right: 5px; /* Add space between the link and the counts */
+}
+
+
+.edit-button {
+    /* Existing styles */
+    display: inline-block;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 50%; /* Create a circular shape */
+    padding: 5px;
+    position: absolute;
+    top: 5px; /* Adjust the top position */
+    right: 40px; /* Adjust the right position */
+    transition: transform 0.2s ease-in-out; /* Add hover animation */
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+.edit-button i {
+    font-size: 18px; /* Adjust the icon size */
+}
+
+.edit-button:hover {
+    color: darkred; /* Darken the background on hover */
+}
+
+.linear-layout {
+    display: flex;
+    flex-direction: column; /* Horizontal layout */
+    justify-content: space-between; /* Adjust alignment as needed */
+}
+
+.item {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.centered-container {
+        display: flex;
+        align-items: center; /* Center vertically */
+        justify-content: center; /* Center horizontally */
+    }
+
+    .arrow-down {
+        font-size: 2rem; /* Adjust the font size as needed */
+    }
+
+.comment-list {
+
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+}
+
+.comment-date {
+margin-left: auto; /* This will push the .comment-date to the right */
+}
+
+
+.comment-form {
+    width: 100%;
+    display: flex;
+    flex-direction: row; /* Ensure contents are in a row */
+    justify-content: space-between;
+    align-items: center; /* Vertically center-align contents */
+}
+
+
+
+
+.comment-submit-button {
+    margin: 10px;
+    height: 50px;
+    float: right;
+}
+
+.comment-textarea {
+border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 85%;
+    resize: none; /* Disable manual resizing */
+    transition: height 0.2s; /* Add a smooth transition */
+    overflow-y: hidden; /* Hide vertical scrollbar */
+}
+
+.edit-textarea {
+border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    max-width: 95%;
+    resize: none; /* Disable manual resizing */
+    transition: height 0.2s; /* Add a smooth transition */
+    overflow-y: hidden; /* Hide vertical scrollbar */
+}
+
+.comment-textarea:focus {
+    overflow-y: auto; /* Show vertical scrollbar when focused */
+}
+
+.comment-submit-button {
+    margin-left: 10px;
+}
+
+.text-container {
+            white-space: pre-line;
+            padding: 5px;
+            overflow: hidden; /* Optional: Hide any overflowing content */
+        }
+
+
+.right-side-view {
+    width: 5%; /* Adjust the width as needed */
+    background-color: #f0f0f0;
+    position: fixed;
+    display: flex;
+    top: 10%; /* Adjust the top position based on your layout */
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.chat-area {
+    padding: 0.5%; /* Adjust the padding as needed */
+    position: fixed;
+    right: 5%; /* Adjust the right position based on your layout */
+    bottom: 0;
+    max-height: 80%; /* Adjust the max-height as needed */
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+
